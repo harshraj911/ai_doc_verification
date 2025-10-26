@@ -41,11 +41,17 @@ const App: React.FC = () => {
       const verificationResult = await verifyDocument(file);
       setResult(verificationResult);
     } catch (err: unknown) {
+      let friendlyError = 'An unknown error occurred during verification.';
       if (err instanceof Error) {
-        setError(`Verification failed: ${err.message}`);
-      } else {
-        setError('An unknown error occurred during verification.');
+        if (err.message.includes('API_KEY')) {
+          friendlyError = 'A configuration error occurred. Please contact the administrator.';
+        } else if (err.message.includes('invalid response format')) {
+          friendlyError = 'Failed to process the document as the AI returned an unexpected response. Please try again with a clearer document.';
+        } else {
+          friendlyError = 'Verification failed. Please check your connection and try again.';
+        }
       }
+      setError(friendlyError);
       console.error(err);
     } finally {
       setIsLoading(false);

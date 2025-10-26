@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import { DocumentIcon } from './icons/DocumentIcon';
 
@@ -67,10 +66,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, file, previewUrl 
             <p className="mb-2 text-sm text-slate-500">
               <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
-            <p className="text-xs text-slate-500">PNG, JPG, WEBP, or PDF</p>
+            <p className="text-xs text-slate-500">PNG, JPG, WEBP, PDF, DOCX, TXT, RTF</p>
           </div>
         )}
-        <input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept="image/png, image/jpeg, image/webp, application/pdf" />
+        <input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept="image/png, image/jpeg, image/webp, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain, application/rtf" />
       </label>
     </div>
   );
