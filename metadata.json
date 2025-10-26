@@ -1,0 +1,5 @@
+{
+  "name": "AI Document Verifier",
+  "description": "An AI-powered system to automatically verify official documents. Upload an image of a document to check its authenticity, extract key details, and flag any inconsistencies using advanced AI analysis.",
+  "requestFramePermissions": []
+}
