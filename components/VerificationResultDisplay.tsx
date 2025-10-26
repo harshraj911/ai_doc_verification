@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { VerificationResult } from '../types';
 import { VerificationStatus } from '../types';
@@ -40,7 +39,7 @@ const VerificationResultDisplay: React.FC<VerificationResultDisplayProps> = ({ r
   const Icon = config.icon;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {/* Status Header */}
       <div className={`p-4 rounded-lg flex items-center space-x-3 ${config.bgColor}`}>
         <Icon className={`w-8 h-8 ${config.color}`} />
@@ -50,24 +49,32 @@ const VerificationResultDisplay: React.FC<VerificationResultDisplayProps> = ({ r
         </div>
       </div>
 
-      {/* Confidence Score */}
-      <div>
+      {/* Confidence Score Card */}
+      <div className="p-4 rounded-lg border border-slate-200 bg-white shadow-sm">
         <div className="flex justify-between items-center mb-1">
           <h4 className="font-semibold text-slate-700">Confidence Score</h4>
           <span className={`font-bold text-lg ${config.color}`}>{(result.confidenceScore * 100).toFixed(0)}%</span>
         </div>
         <div className="w-full bg-slate-200 rounded-full h-2.5">
-          <div className={`${config.progressColor} h-2.5 rounded-full`} style={{ width: `${result.confidenceScore * 100}%` }}></div>
+          <div className={`${config.progressColor} h-2.5 rounded-full transition-all duration-500 ease-out`} style={{ width: `${result.confidenceScore * 100}%` }}></div>
+        </div>
+      </div>
+      
+      {/* Document Type Card */}
+      <div className="p-4 rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="flex justify-between items-center">
+          <h4 className="font-semibold text-slate-700">Detected Document Type</h4>
+          <span className="font-medium text-slate-800 bg-slate-100 px-2.5 py-1 rounded-md text-sm">{result.documentType}</span>
         </div>
       </div>
 
-      {/* Extracted Details */}
-      <div>
+      {/* Extracted Details Card */}
+      <div className="p-4 rounded-lg border border-slate-200 bg-white shadow-sm">
         <h4 className="font-semibold text-slate-700 mb-2">Extracted Details</h4>
         <div className="border border-slate-200 rounded-lg overflow-hidden">
           <ul className="divide-y divide-slate-200">
             {result.extractedDetails.map((detail, index) => (
-              <li key={index} className="px-4 py-3 flex justify-between items-center text-sm">
+              <li key={index} className="px-4 py-3 flex justify-between items-center text-sm bg-slate-50/50 even:bg-white">
                 <span className="font-medium text-slate-500">{detail.field}</span>
                 <span className="text-slate-800 text-right">{detail.value}</span>
               </li>
@@ -79,15 +86,15 @@ const VerificationResultDisplay: React.FC<VerificationResultDisplayProps> = ({ r
         </div>
       </div>
 
-      {/* Inconsistencies */}
+      {/* Inconsistencies Card */}
       {result.inconsistencies && result.inconsistencies.length > 0 && (
-        <div>
-          <h4 className="font-semibold text-slate-700 mb-2">Potential Inconsistencies</h4>
+        <div className="p-4 rounded-lg border border-yellow-200 bg-yellow-50 shadow-sm">
+          <h4 className="font-semibold text-yellow-800 mb-2">Potential Inconsistencies</h4>
           <ul className="space-y-2">
             {result.inconsistencies.map((item, index) => (
               <li key={index} className="flex items-start text-sm">
                 <ExclamationTriangleIcon className="w-4 h-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-600">{item}</span>
+                <span className="text-yellow-900/80">{item}</span>
               </li>
             ))}
           </ul>

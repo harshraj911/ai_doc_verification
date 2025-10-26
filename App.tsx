@@ -17,11 +17,15 @@ const App: React.FC = () => {
     setFile(selectedFile);
     setResult(null);
     setError(null);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(selectedFile);
+    if (selectedFile.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setPreviewUrl(null);
+    }
   }, []);
 
   const handleVerification = async () => {
@@ -73,7 +77,7 @@ const App: React.FC = () => {
           {/* Left Column: Upload and Controls */}
           <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200/80">
             <h2 className="text-2xl font-semibold mb-4 text-slate-800">Upload Document</h2>
-            <FileUpload onFileSelect={handleFileChange} previewUrl={previewUrl} />
+            <FileUpload onFileSelect={handleFileChange} file={file} previewUrl={previewUrl} />
             <div className="mt-6 flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleVerification}

@@ -1,4 +1,3 @@
-
 export enum VerificationStatus {
   VERIFIED = 'Verified',
   SUSPICIOUS = 'Suspicious',
@@ -13,6 +12,7 @@ export interface ExtractedDetail {
 export interface VerificationResult {
   status: VerificationStatus;
   confidenceScore: number;
+  documentType: string;
   extractedDetails: ExtractedDetail[];
   inconsistencies: string[];
   summary: string;

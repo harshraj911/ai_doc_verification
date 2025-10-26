@@ -4,10 +4,11 @@ import { DocumentIcon } from './icons/DocumentIcon';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
+  file: File | null;
   previewUrl: string | null;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, previewUrl }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, file, previewUrl }) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragEnter = (e: React.DragEvent<HTMLLabelElement>) => {
@@ -54,16 +55,22 @@ const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, previewUrl }) => 
       >
         {previewUrl ? (
           <img src={previewUrl} alt="Document preview" className="object-contain h-full w-full rounded-lg" />
+        ) : file ? (
+          <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
+            <DocumentIcon className="w-10 h-10 mb-3 text-slate-400" />
+            <p className="mb-2 text-sm text-slate-600 font-semibold truncate max-w-full px-4">{file.name}</p>
+            <p className="text-xs text-slate-500">Click or drag to replace the file</p>
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
             <DocumentIcon className="w-10 h-10 mb-3 text-slate-400" />
             <p className="mb-2 text-sm text-slate-500">
               <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
-            <p className="text-xs text-slate-500">PNG, JPG, or WEBP</p>
+            <p className="text-xs text-slate-500">PNG, JPG, WEBP, or PDF</p>
           </div>
         )}
-        <input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept="image/png, image/jpeg, image/webp" />
+        <input id="file-upload" type="file" className="hidden" onChange={handleFileChange} accept="image/png, image/jpeg, image/webp, application/pdf" />
       </label>
     </div>
   );
