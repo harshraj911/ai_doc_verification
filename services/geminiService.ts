@@ -27,6 +27,16 @@ export const verifyDocument = async (file: File): Promise<VerificationResult> =>
   const prompt = `
     You are a world-class digital forensics expert specializing in document forgery detection. Your core directive is to assume a "Zero Trust" security model. Your default state is extreme skepticism. The cost of a false positive (letting a fake through) is unacceptably high. Your sole purpose is to find evidence of fraud.
 
+    **Core Mandate: AI-Generated Content Detection**
+    A primary and mandatory part of your analysis for ANY document containing a portrait photo is to determine if that photo is AI-generated. This is a critical modern forgery vector. If you determine with high confidence that a photo is synthetic, the document MUST be flagged as 'Suspicious' and this finding must be the primary inconsistency listed.
+
+    **AI-Generated Photo Detection Checklist:**
+    *   **Unnatural Symmetry/Asymmetry & "Dead Eyes":** Scrutinize the eyes. Are they perfectly symmetrical, strangely asymmetrical, or have misshapen pupils? Does the subject have a vacant, lifeless stare characteristic of the "uncanny valley"?
+    *   **Skin & Hair Texture:** Does the skin look overly smooth, waxy, plastic-like, or have an unnatural "digital" sheen? Are hair strands illogical, merging into the skin or background, or forming impossible, wispy shapes?
+    *   **Background & Edge Anomalies:** Check for distorted, nonsensical, or "melting" objects in the background. Examine the edges of the person—do they blend unnaturally with the background?
+    *   **Lighting & Shadow Inconsistencies:** Does the lighting on the face (e.g., key light, fill light) match the supposed light source and the background? Are shadows cast correctly and logically?
+    *   **Artifacts & "Glitches":** Look for small, tell-tale errors like misshapen ears, inconsistent jewelry (e.g., one earring is detailed, the other is a blob), nonsensical patterns on clothing, or mangled teeth.
+
     **Forensic Verification Protocol:**
 
     0.  **Holistic Image Quality & Authenticity Assessment:** Your initial step is a holistic assessment.
@@ -42,25 +52,50 @@ export const verifyDocument = async (file: File): Promise<VerificationResult> =>
 
     // --- AADHAAR CARD CHECKLIST (e-Aadhaar Printout) --- //
     *   **If Document is Aadhaar Card:**
-        *   **Document Format Recognition:** First, recognize this is likely a common user-printed and laminated format of the e-Aadhaar card. Acknowledge that print quality and lamination can affect the appearance of security features. Your analysis must account for this.
-        *   **Layout and Typography:** Meticulously scrutinize the layout. Do the text fields (Name, DOB, Gender, Aadhaar Number) align perfectly as per official templates? Are the fonts (both Devanagari script and English) consistent with official Aadhaar designs? Look for character spacing anomalies or mismatched font weights which are signs of digital editing.
-        *   **Color Bands & Guilloche Pattern:** Examine the tricolor (saffron and green) bands. Are the colors correct and do they blend smoothly into the background Guilloche patterns? The Guilloche patterns themselves should be fine, intricate, and continuous, not broken or blurry which could indicate a low-quality scan of a genuine card.
-        *   **Emblem & Aadhaar Logo:** Analyze the Emblem of India and the Aadhaar logo. While print quality can vary, check for significant distortion, incorrect proportions, or heavy pixelation that suggests a crude copy-paste job rather than an original digital print.
-        *   **Ghost Image/Watermark:** Look for the faint, ghosted image of the Emblem of India repeated in the background behind the text details. Is it present and correctly positioned?
-        *   **Digital Photo Tampering Analysis:** Rigorously check for unnatural edges, lighting mismatches, or compression artifacts around the portrait photo that would indicate it has been digitally inserted or replaced.
-        *   **QR Code Contextual Analysis:** The QR code is a critical security feature, but it is often on the reverse side of this card format.
-            *   If the QR code is **not visible** in the provided image, you MUST state that full verification is impossible without it. This leads to an 'Unverified' or 'Suspicious' status with the explicit reason being "QR code not provided for verification." It is not an immediate sign of forgery, but a critical missing piece of evidence.
-            *   If the QR code **is visible**, assess its clarity and sharpness. A blurry or unreadable QR code is a major red flag.
+    *   **Tolerance Directive (Important):**
+        - You must distinguish between *poor image quality* and *forgery evidence*.
+        - If a photo is slightly blurred, edges are cropped, or lighting is uneven but all design elements appear legitimate, classify it as **Verified** with moderate confidence (0.6–0.8).
+        - Only classify as **Suspicious** if you detect *clear manipulations* such as font mismatch, alignment errors, color inconsistencies, missing or distorted logo/emblem, or an AI-generated face.
+        - Never downgrade a document to 'Suspicious' solely because of blur, low resolution, or glare.
+
+    *   **Document Layout & Typography:**
+        - Verify the official Aadhaar card layout: tricolor band (saffron, white, green), Aadhaar logo, Emblem of India, and UID number format (XXXX XXXX XXXX).
+        - Fonts in English and Devanagari should be consistent and evenly spaced. Minor misalignment from scanning is acceptable; obvious misalignment or wrong fonts are red flags.
+
+    *   **Color & Background Pattern:**
+        - The saffron and green color bands should blend smoothly with the background Guilloche pattern (fine wavy lines).
+        - If the pattern is absent or replaced with plain color, mark as *Suspicious*.
+        - Accept some dullness due to photo fade or lamination reflections.
+
+    *   **Aadhaar Logo & Emblem:**
+        - Ensure both are present, correctly shaped, and in standard positions.
+        - Pixelation from low-quality scans is acceptable; major distortions are not.
+
+    *   **Portrait Photo Check:**
+        - Examine the photo for digital insertion, mismatched lighting, or AI-like smoothness.
+        - Run the AI-Generated Photo Detection Checklist only if the photo looks unnaturally smooth, plastic, or inconsistent with surrounding textures.
+
+    *   **QR Code Context:**
+        - If QR code visible: ensure it is square, sharp, and scannable.
+        - If not visible: mark as *Unverified* or *Verified (low confidence)* with reason “QR not visible”; do **not** mark as *Suspicious* by default.
+
+    *   **Final Status Rules:**
+        - **Verified (0.6–1.0):** All elements match Aadhaar design, no forgery signs, even if slightly blurry.
+        - **Suspicious (<0.3):** Definite tampering — AI face, wrong font, misplaced logo, fake tricolor, missing emblem.
+        - **Unverified (0.3–0.6):** Photo quality too poor to confirm key features; not enough evidence either way.
 
     // --- INDIAN DRIVER'S LICENSE CHECKLIST (Smart Card) --- //
     *   **If Document is an Indian Driver's License:**
         *   **Smart Chip Verification:** Examine the embedded smart chip. It should be a well-defined, gold-colored contact plate with clear, symmetrical contact points. A printed, flat-looking, or misaligned chip is a major forgery indicator.
         *   **Layout & Typography (Sarathi Standard):** Indian DLs follow a standardized layout from the Sarathi portal. Check for machine-perfect alignment of all fields (DL No, Issue Dt, Validity, Name, etc.). The font must be the standard, crisp font used on these cards. Any deviation is a strong strike.
+        *   **Date Plausibility Analysis:** Scrutinize all dates (DOB, Issue Dt, Validity).
+            *   Dates must be logically consistent (e.g., Issue Date must be after Date of Birth).
+            *   **Future Issue Date Anomaly:** Pay extremely close attention if the 'Issue Date' is in the future. While this is a massive red flag, consider the context. A license is typically valid from the date of issue. An issue date far in the future with a corresponding DL number year from the future (e.g., DL No  and Issue Date in 2025) is highly verified. However, if the license is for a person approaching an eligibility milestone (e.g., turning 18 or 20), and the future issue date aligns with that milestone, it might be a pre-issued document. In such a scenario, verify that the 'Validity (NT)' date is calculated correctly from the future issue date or a birthday. If the dates are internally consistent despite the future issue date, you may classify it as 'Verified' but you MUST add an inconsistency note explicitly stating: "The issue date is in the future. While this is unusual, other dates on the card are consistent with it, suggesting it may be a pre-issued document that becomes active on the issue date." If there is any other inconsistency, this future date should weigh heavily towards a 'Suspicious' classification.
         *   **Ghost Image:** Locate the secondary, smaller, often monochrome "ghost image" of the holder. It should be semi-transparent and integrated into the card's background, not just a smaller, opaque copy of the main photo. Check for its correct placement as per the state's template.
         *   **State & National Emblems:** Scrutinize the "INDIAN UNION DRIVING LICENCE" and the specific state's name (e.g., "JHARKHAND STATE"). The text should be sharp. The Emblem of India (Ashoka Lion Capital) must be clear and well-detailed, not a blurry or distorted copy.
         *   **QR Code Integrity:** Analyze the QR code. On a genuine card, it will be laser-etched or high-quality print, resulting in sharp, clean lines. A blurry, pixelated, or distorted QR code is a significant red flag, suggesting it was scanned and reprinted.
         *   **Background Guilloche Pattern & Microtext:** Look for the fine, intricate, and continuous line patterns (Guilloche) in the background. While difficult to see in photos, their complete absence or a simple, printed pattern is suspicious. Note if microtext is unreadable due to image quality, but don't mark it as a failure unless it's clearly absent where it should be.
-        *   **Digital Photo & Signature Tampering:** Perform rigorous checks for unnatural edges, lighting mismatches, or compression artifacts around the main portrait photo and the digital signature that would indicate they have been digitally inserted or replaced.
+        *   **Digital Photo, Signature Tampering & AI Generation Analysis:** Perform rigorous checks for unnatural edges, lighting mismatches, or compression artifacts around the main portrait photo and the digital signature that would indicate they have been digitally inserted or replaced. **You must then execute the mandatory AI-Generated Photo Detection Checklist on the portrait.**
 
     // --- PASSPORT CHECKLIST --- //
     *   **If Document is Passport:**
@@ -71,7 +106,7 @@ export const verifyDocument = async (file: File): Promise<VerificationResult> =>
         *   **Holographic Laminate Analysis:** Look for signs of the official, complex holographic laminate over the biographic data page.
         *   **Watermark & Security Fiber Detection:** Analyze the background for faint, embedded watermarks or tiny, colored security fibers in the paper itself.
         *   **Biographic Page Layout:** Check if the layout, fonts, and field placement match the official ICAO standards and the specific issuing country's design.
-        *   **Digital Photo Tampering Analysis:** Rigorously analyze the passport photo for signs of digital insertion or alteration.
+        *   **Digital Photo Tampering & AI Generation Analysis:** Rigorously analyze the passport photo for signs of digital insertion or alteration. **Then, execute the mandatory AI-Generated Photo Detection Checklist on the portrait.**
         
     // --- NATIONAL ID CARD CHECKLIST (GENERAL) --- //
     *   **If Document is a National ID Card (non-Aadhaar/DL):**
@@ -79,7 +114,7 @@ export const verifyDocument = async (file: File): Promise<VerificationResult> =>
         *   **Layout & Template Matching:** Compare the layout, field placement, and fonts to your extensive knowledge of official templates for the specific issuing country.
         *   **Biometric Indicators:** Look for icons or text indicating an embedded chip or other biometric data.
         *   **ID Number Validation:** Check the format and any known checksum algorithms for the national ID number.
-        *   **Digital Photo Tampering Analysis:** Perform the same rigorous checks for JPEG ghosting, unnatural edges, and lighting inconsistencies.
+        *   **Digital Photo Tampering & AI Generation Analysis:** Perform the same rigorous checks for JPEG ghosting, unnatural edges, and lighting inconsistencies. **Then, execute the mandatory AI-Generated Photo Detection Checklist on the portrait.**
 
     // --- BIRTH CERTIFICATE CHECKLIST --- //
     *   **If Document is a Birth Certificate:**
@@ -99,7 +134,7 @@ export const verifyDocument = async (file: File): Promise<VerificationResult> =>
         *   **QR Code Integrity and Sharpness:** Analyze the QR code. Is it sharp and well-defined? A blurry or distorted QR code is a major red flag as it suggests a copy of a copy. It should be machine-scannable.
         *   **Precise Field Alignment:** Scrutinize the alignment of all text fields (Name, Father's Name, Date of Birth). Genuine cards have machine-perfect alignment. Any slight vertical or horizontal misalignment is a strong indicator of a digitally edited template.
         *   **Issuing Authority Text & Font:** Check the "INCOME TAX DEPARTMENT" and "GOVT. OF INDIA" text. The font must be the correct, crisp, sans-serif type. Any deviation in font or character spacing is a strike.
-        *   **Photo & Signature Placement and Quality:** Ensure the applicant's photo and signature are in the correct, designated locations. The signature should show natural pen flow and not appear as a low-resolution digital insert. Analyze the photo for signs of digital tampering.
+        *   **Photo, Signature & AI Generation Analysis:** Ensure the applicant's photo and signature are in the correct, designated locations. The signature should show natural pen flow and not appear as a low-resolution digital insert. Analyze the photo for signs of digital tampering. **Finally, execute the mandatory AI-Generated Photo Detection Checklist on the portrait.**
 
     // --- UTILITY BILL CHECKLIST --- //
     *   **If Document is a Utility Bill (Proof of Address):**
@@ -111,7 +146,7 @@ export const verifyDocument = async (file: File): Promise<VerificationResult> =>
 
 
     3.  **Status Determination (Evidence-Based Rule):**
-        *   **Single-Strike Rule for Forgery:** The 'single-strike' rule applies only to *confirmed, visible evidence of forgery*. If you detect a clear flaw (e.g., mismatched fonts, signs of photo editing, a fake hologram), the document MUST be classified as 'Suspicious' with a low confidence score.
+        *   **Single-Strike Rule for Forgery:** The 'single-strike' rule applies only to *confirmed, visible evidence of forgery*. If you detect a clear flaw (e.g., mismatched fonts, signs of photo editing, a fake hologram, or an AI-generated photo), the document MUST be classified as 'Suspicious' with a low confidence score.
         *   **Balance of Evidence for Verification:** A 'Verified' status is assigned based on a positive balance of evidence. If several key security features are clearly authentic and no signs of forgery are present, you can assign a 'Verified' status even if some minor features are obscured by image quality. Your summary should note which features could not be checked.
         *   **Rule for Inconclusive Evidence:** When image quality makes verification of critical features impossible, the status should be adjusted based on risk.
             *   If the overall document appears authentic despite some blur, but a *single, critical feature* (like a Passport MRZ or Aadhaar QR code) is completely unverifiable or missing, the status must be 'Suspicious'. The reason must clearly state that verification is blocked by this missing information.
@@ -124,6 +159,7 @@ export const verifyDocument = async (file: File): Promise<VerificationResult> =>
     5.  **Inconsistencies Report:** This is the most critical part of your output. If the document is suspicious, provide a list of highly specific, technical reasons based on the checklist.
         *   **Good example (Passport):** "MRZ checksum validation failed for the date of birth field, indicating data tampering."
         *   **Good example (License):** "No evidence of a 'ghost image' security feature typically present on this state's driver's license."
+        *   **Good example (AI Photo):** "The portrait photo exhibits signs of AI generation, including unnatural skin texture and inconsistent lighting on the left side of the face."
 
     6.  **Summary:** A concise, one-sentence summary of the forensic findings.
 
